@@ -1,0 +1,16 @@
+# Lancer le cluster
+cd C:\Users\chaym\bigdata\docker-hadoop-spark-workbench
+docker-compose up -d
+
+# Copier le dataset dans le namenode
+docker cp "C:\Users\chaym\Downloads\creditcard.csv" namenode:/opt/data/creditcard.csv
+
+# Mettre le fichier dans HDFS
+docker exec -it namenode bash
+hdfs dfs -mkdir -p /user/etudiant/fraud/raw
+hdfs dfs -put -f /opt/data/creditcard.csv /user/etudiant/fraud/raw/
+
+# Lancer les scripts Spark
+docker exec -it spark-master bash
+/spark/bin/spark-submit --master spark://spark-master:7077 /tmp/fraud_step1_read.py
+/spark/bin/spark-submit --master spark://spark-master:7077 /tmp/fraud_step2_sql.py
