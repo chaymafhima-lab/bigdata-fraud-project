@@ -1,51 +1,32 @@
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/big-data-europe/docker-hadoop-spark-workbench)
+# bigdata-fraud-project
 
-# How to use HDFS/Spark Workbench
+Mini projet Big Data : détection de fraude par carte bancaire avec Hadoop et Spark.
 
-To start an HDFS/Spark Workbench:
-```
-    docker-compose up -d
-```
+## Objectifs
 
-docker-compose does not work to scale up spark-workers, for distributed setup see [swarm folder](./swarm) 
+- Ingestion du dataset **Credit Card Fraud Detection** (Kaggle) dans HDFS.
+- Pré-traitement et statistiques avec **Spark SQL**.
+- Production d’un dataset propre en **Parquet** pour l’entraînement d’un modèle MLlib.
+- (Optionnel) Entraînement d’un modèle de classification fraude / non fraude avec Spark MLlib.
 
-## Starting workbench with Hive support
+## Environnement technique
 
-Before starting the next command, check that the previous service is running correctly (with docker logs servicename).
-```
-docker-compose -f docker-compose-hive.yml up -d namenode hive-metastore-postgresql
-docker-compose -f docker-compose-hive.yml up -d datanode hive-metastore
-docker-compose -f docker-compose-hive.yml up -d hive-server
-docker-compose -f docker-compose-hive.yml up -d spark-master spark-worker spark-notebook hue
-```
+- Cluster Docker basé sur l’image **bde2020/spark-master** et **hadoop-namenode/datanode**.
+- HDFS pour le stockage distribué.
+- Spark (driver sur `spark-master`) pour le traitement.
 
-## Interfaces
+## Scripts principaux
 
-* Namenode: http://localhost:50070
-* Datanode: http://localhost:50075
-* Spark-master: http://localhost:8080
-* Spark-notebook: http://localhost:9001
-* Hue (HDFS Filebrowser): http://localhost:8088/home
+- `fraud_step1_read.py`
 
-## Important
+  - Lit `/user/etudiant/fraud/raw/creditcard.csv` depuis HDFS.
+  - Écrit un échantillon en Parquet dans `/user/etudiant/fraud/test_output`.
 
-When opening Hue, you might encounter ```NoReverseMatch: u'about' is not a registered namespace``` error after login. I disabled 'about' page (which is default one), because it caused docker container to hang. To access Hue when you have such an error, you need to append /home to your URI: ```http://docker-host-ip:8088/home```
+- `fraud_step2_sql.py`
+  - Lit le CSV brut depuis HDFS.
+  - Calcule des statistiques de base (nombre total de transactions, nombre de fraudes, montant moyen, etc.).
+  - Écrit un dataset nettoyé en Parquet dans `/user/etudiant/fraud/clean/transactions_parquet`.
 
-## Docs
-* [Motivation behind the repo and an example usage @BDE2020 Blog](http://www.big-data-europe.eu/scalable-sparkhdfs-workbench-using-docker/)
+## Commandes utiles (résumé)
 
-## Count Example for Spark Notebooks
-```
-val spark = SparkSession
-  .builder()
-  .appName("Simple Count Example")
-  .getOrCreate()
-
-val tf = spark.read.textFile("/data.csv")
-tf.count()
-```
-
-## Maintainer
-* Ivan Ermilov @earthquakesan
-
-Note: this repository was a part of BDE H2020 EU project and no longer actively maintained by the project participants. 
+- Lancer le cluster :
