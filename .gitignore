@@ -1,0 +1,40 @@
+# Python
+*.pyc
+__pycache__/
+*.py[cod]
+*`$py.class
+.Python
+
+# Données
+*.csv
+*.parquet
+creditcard.*
+
+# Logs Spark
+*.log
+spark-events/
+metastore_db/
+derby.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Docker
+docker-compose.override.yml
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temp
+tmp/
+temp/
+*.tmp
+numpy-*.whl
